@@ -1,6 +1,6 @@
 {
   $('button#play-pause').on('click', function() {
-    player.playPause();
+    helper.playPauseAndUpdate();
     $(this).attr('playState', player.playState);
   });
 
@@ -14,7 +14,7 @@
     const nextSong = album.songs[nextSongIndex];
 
     //start next song
-    player.playPause(nextSong);
+    helper.playPauseAndUpdate(nextSong);
   });
 
   // previous buttons
@@ -31,6 +31,31 @@
     const previousSong = album.songs[previousSongIndex];
 
     //play previous song
-    player.playPause(previousSong);
+    helper.playPauseAndUpdate(previousSong);
+  });
+
+  // detect song range change
+  $('#time-control input').on('input', function (event) {
+      player.skipTo(event.target.value);
+  });
+
+  // song input range interval
+  setInterval(() => {
+    if(player.playState !== 'playing'){ return; }
+
+    // get percentage of song playing
+    const currentTime = player.getTime(); // part of song played
+    const duration = player.getDuration(); // whole song
+    const percent = (currentTime/duration) * 100;
+    //show current time
+    $('#time-control .current-time').text( player.prettyTime(currentTime) );
+
+    //set the input value of the range
+    $('#time-control input').val(percent);
+  }, 1000);
+
+  // volume control event
+  $('#volume-control input').on('input', function (event) {
+      player.setVolume(event.target.value);
   });
 }
